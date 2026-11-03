@@ -1,0 +1,144 @@
+{
+  "$schema": "https://github.com/fastfetch-cli/fastfetch/raw/dev/doc/json_schema.json",
+  "logo": {
+    "source": "\"$(fastfetch.sh logo)\"",
+    "height": 18
+  },
+  "display": {
+    "separator": " : "
+  },
+  "modules": [
+    {
+      "type": "command",
+      "key": "  ",
+      "keyColor": "blue",
+      "text": "splash=$(sh ~/.config/waybar/randomfrases.sh);echo $splash"
+    },
+    "break",
+
+
+    {
+      "type": "custom",
+      "format": "┌──────────────────────────────────────────┐"
+    },
+    "break",
+    {
+      "type": "command",
+      "key": "  Reproduciendo ahora",
+      "keyColor": "cyan",
+      "text": "playerctl metadata --format '{{artist}} - {{title}}' 2>/dev/null || echo 'No media playing'"
+    },
+    "break",
+    {
+      "type": "custom",
+      "format": "└──────────────────────────────────────────┘"
+    },
+    "break",
+
+
+    {
+      "type": "custom",
+      "format": "┌──────────────────────────────────────────┐"
+    },
+    {
+      "type": "chassis",
+      "key": "  󰇺 Placa madre",
+      "format": "{1} {2} {3}"
+    },
+    {
+      "type": "os",
+      "key": "  󰣇 SO",
+      "format": "{2}",
+      "keyColor": "red"
+    },
+    {
+      "type": "kernel",
+      "key": "   Kernel",
+      "format": "{2}",
+      "keyColor": "red"
+    },
+    {
+      "type": "packages",
+      "key": "  󰏗 Paquetes",
+      "keyColor": "green"
+    },
+    {
+      "type": "display",
+      "key": "  󰍹 Pantalla",
+      "format": "{1}x{2} @ {3}Hz [{7}]",
+      "keyColor": "green"
+    },
+    {
+      "type": "terminal",
+      "key": "   Terminal",
+      "keyColor": "yellow"
+    },
+    {
+      "type": "wm",
+      "key": "  󱗃 Gestor",
+      "format": "{2}",
+      "keyColor": "yellow"
+    },
+    {
+      "type": "custom",
+      "format": "└──────────────────────────────────────────┘"
+    },
+    "break",
+    {
+      "type": "title",
+      "key": "Imbécil ",
+      "format": "{6} {7} {8}"
+    },
+    {
+      "type": "custom",
+      "format": "┌──────────────────────────────────────────┐"
+    },
+    {
+      "type": "cpu",
+      "format": "{1} @ {7}",
+      "key": "   CPU",
+      "keyColor": "blue"
+    },
+    {
+      "type": "gpu",
+      "format": "{1} {2}",
+      "key": "  󰊴 GPU",
+      "keyColor": "blue"
+    },
+    {
+      "type": "gpu",
+      "format": "{3}",
+      "key": "   Controlador GPU",
+      "keyColor": "magenta"
+    },
+    {
+      "type": "memory",
+      "key": "   RAM ",
+      "keyColor": "magenta"
+    },
+    {
+      "type": "disk",
+      "key": "  󱦟 Edad del SO ",
+      "folders": "/",
+      "keyColor": "red",
+      "format": "{days} days"
+    },
+    {
+      "type": "uptime",
+      "key": "  󱫐 Tiempo activo ",
+      "keyColor": "red"
+    },
+    {
+      "type": "custom",
+      "format": "└──────────────────────────────────────────┘"
+    },
+    {
+      "type": "colors",
+      "paddingLeft": 2,
+      "symbol": "circle"
+    },
+    "break"
+  ]
+}
+
+

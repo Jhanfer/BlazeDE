@@ -1,0 +1,19 @@
+# ==============================================================================
+# BlazeDE - Paquetes de Arch User Repository (Yay)
+# ==============================================================================
+
+# --- Lanzador del Sistema y Plugins (Walker / Elephant) ---
+walker
+elephant
+elephant-windows
+elephant-clipboard
+elephant-files
+elephant-desktopapplications
+
+# --- Capturas y OCR ---
+grimblast-git
+
+# --- Aplicaciones y Navegación ---
+zen-browser-bin
+visual-studio-code-insiders-bin
+spotify

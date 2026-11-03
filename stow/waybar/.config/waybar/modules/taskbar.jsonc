@@ -1,0 +1,20 @@
+{
+    "wlr/taskbar": {
+        "format": "{icon}",
+        "rotate": 0,                    // ← cambiado a número fijo
+        "icon-size": 18,                // ← elige el tamaño que uses normalmente (18–22 es lo habitual)
+        "icon-theme": "Papirus",        // ← pon aquí el nombre real de tu tema de iconos
+                                        // (Papirus, Adwaita, breeze, etc.) o quítalo si no lo necesitas
+        "spacing": 0,
+        "tooltip-format": "{title}",
+        "on-click": "activate",
+        "on-click-middle": "close",
+        "ignore-list": [
+            "Alacritty"
+        ],
+        "app_ids-mapping": {
+            "firefoxdeveloperedition": "firefox-developer-edition",
+            "jetbrains-datagrip": "DataGrip"
+        }
+    }
+}

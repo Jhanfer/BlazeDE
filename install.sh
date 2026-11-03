@@ -1,0 +1,249 @@
+#!/usr/bin/env bash
+# ==============================================================================
+# BlazeDE Installer Script
+# Automatización de instalación, paquetes, AUR, Flatpak, CachyOS Kernel, 
+# BlazePilot, dotfiles (Stow con backup automático), bootloader y servicios.
+# ==============================================================================
+
+set -eo pipefail
+
+SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+BLAZEDE_DIR="$SCRIPT_DIR"
+PACKAGES_DIR="$BLAZEDE_DIR/packages"
+
+# Colores de salida
+CLR_RESET="\033[0m"
+CLR_INFO="\033[1;34m"
+CLR_SUCCESS="\033[1;32m"
+CLR_WARN="\033[1;33m"
+CLR_ERR="\033[1;31m"
+
+log_info() { printf "${CLR_INFO}[INFO] %s${CLR_RESET}\n" "$*"; }
+log_ok()   { printf "${CLR_SUCCESS}[OK] %s${CLR_RESET}\n" "$*"; }
+log_warn() { printf "${CLR_WARN}[WARN] %s${CLR_RESET}\n" "$*"; }
+log_err()  { printf "${CLR_ERR}[ERROR] %s${CLR_RESET}\n" "$*" >&2; }
+
+# Función para leer paquetes de un archivo ignorando comentarios (#) y líneas vacías
+read_packages() {
+    local file="$1"
+    if [[ -f "$file" ]]; then
+        grep -v '^[[:space:]]*#' "$file" | grep -v '^[[:space:]]*$' | tr '\n' ' '
+    fi
+}
+
+# 1. Comprobación de privilegios
+if [[ $EUID -eq 0 ]]; then
+    log_err "No ejecutes este script como root. El script solicitará permisos con sudo cuando sea necesario."
+    exit 1
+fi
+
+# 2. Comprobación de conexión a Internet
+log_info "Comprobando conexión a Internet..."
+if ! ping -c 1 -W 3 archlinux.org >/dev/null 2>&1 && ! ping -c 1 -W 3 1.1.1.1 >/dev/null 2>&1; then
+    log_err "No se detecta conexión a Internet activa. Por favor, conecte el equipo antes de continuar."
+    exit 1
+fi
+log_ok "Conexión a Internet activa."
+
+# 3. Herramientas base de compilación
+log_info "Actualizando base del sistema e instalando herramientas base (base-devel, git, stow)..."
+sudo pacman -Sy --needed --noconfirm base-devel git stow
+
+# 4. Instalación de Yay (AUR Helper)
+if ! command -v yay >/dev/null 2>&1; then
+    log_info "Instalando yay desde AUR..."
+    TEMP_YAY="$(mktemp -d)"
+    git clone https://aur.archlinux.org/yay.git "$TEMP_YAY/yay"
+    (
+        cd "$TEMP_YAY/yay"
+        makepkg -si --noconfirm
+    )
+    rm -rf "$TEMP_YAY"
+    log_ok "yay instalado con éxito."
+else
+    log_ok "yay ya se encuentra instalado."
+fi
+
+# 5. Configuración del Repositorio Chaotic-AUR (Kernel CachyOS precompilado)
+log_info "Verificando repositorio Chaotic-AUR para Kernel CachyOS..."
+if ! grep -q "^\[chaotic-aur\]" /etc/pacman.conf; then
+    log_info "Añadiendo llaves y repositorio Chaotic-AUR..."
+    sudo pacman-key --recv-key 3056513887B78AEB --keyserver keyserver.ubuntu.com || true
+    sudo pacman-key --lsign-key 3056513887B78AEB || true
+    sudo pacman -U --noconfirm 'https://cdn-mirror.chaotic.cx/chaotic-aur/chaotic-keyring.pkg.tar.zst' || true
+    sudo pacman -U --noconfirm 'https://cdn-mirror.chaotic.cx/chaotic-aur/chaotic-mirrorlist.pkg.tar.zst' || true
+    
+    if ! grep -q "^\[chaotic-aur\]" /etc/pacman.conf; then
+        echo -e "\n[chaotic-aur]\nInclude = /etc/pacman.d/chaotic-mirrorlist" | sudo tee -a /etc/pacman.conf
+    fi
+    sudo pacman -Sy
+    log_ok "Repositorio Chaotic-AUR añadido con éxito."
+else
+    log_ok "Repositorio Chaotic-AUR ya activo en /etc/pacman.conf."
+fi
+
+# 6. Instalación del Kernel CachyOS y sus Headers
+log_info "Instalando último Kernel CachyOS optimizado y sus headers..."
+sudo pacman -S --needed --noconfirm linux-cachyos linux-cachyos-headers || log_warn "No se pudo instalar linux-cachyos vía repositorio."
+
+# 7. Paquetes de Repositorios Oficiales (Pacman) desde packages/pacman.txt
+PACMAN_FILE="$PACKAGES_DIR/pacman.txt"
+if [[ -f "$PACMAN_FILE" ]]; then
+    # shellcheck disable=SC2207
+    OFFICIAL_PKGS=($(read_packages "$PACMAN_FILE"))
+    log_info "Instalando paquetes oficiales desde packages/pacman.txt..."
+    sudo pacman -S --needed --noconfirm "${OFFICIAL_PKGS[@]}" || log_warn "Algunos paquetes oficiales no se pudieron instalar o ya estaban presentes."
+else
+    log_warn "No se encontró el archivo $PACMAN_FILE."
+fi
+
+# 8. Paquetes desde AUR (Yay) desde packages/yay.txt
+YAY_FILE="$PACKAGES_DIR/yay.txt"
+if [[ -f "$YAY_FILE" ]]; then
+    # shellcheck disable=SC2207
+    AUR_PKGS=($(read_packages "$YAY_FILE"))
+    log_info "Instalando paquetes AUR desde packages/yay.txt..."
+    yay -S --needed --noconfirm "${AUR_PKGS[@]}" || log_warn "Revisar avisos de compilación/instalación en AUR."
+else
+    log_warn "No se encontró el archivo $YAY_FILE."
+fi
+
+# 9. Configuración e Instalación de Flatpak desde packages/flatpak.txt
+log_info "Verificando repositorio Flathub..."
+if command -v flatpak >/dev/null 2>&1; then
+    flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo || true
+    
+    FLATPAK_FILE="$PACKAGES_DIR/flatpak.txt"
+    if [[ -f "$FLATPAK_FILE" ]]; then
+        # shellcheck disable=SC2207
+        FLATPAK_PKGS=($(read_packages "$FLATPAK_FILE"))
+        if [[ ${#FLATPAK_PKGS[@]} -gt 0 ]]; then
+            log_info "Instalando aplicaciones Flatpak desde packages/flatpak.txt..."
+            flatpak install -y flathub "${FLATPAK_PKGS[@]}" || log_warn "Algunas aplicaciones Flatpak no se pudieron instalar."
+        fi
+    fi
+    log_ok "Flatpak y Flathub configurados."
+fi
+
+# 10. Descarga de BlazePilot en la carpeta de Descargas
+log_info "Preparando descarga de BlazePilot..."
+DOWNLOAD_DIR="$HOME/Descargas"
+# Si el sistema está en inglés y no existe Descargas, usa Downloads
+if [[ ! -d "$DOWNLOAD_DIR" && -d "$HOME/Downloads" ]]; then
+    DOWNLOAD_DIR="$HOME/Downloads"
+fi
+
+mkdir -p "$DOWNLOAD_DIR"
+
+log_info "Obteniendo la última versión precompilada de BlazePilot desde GitHub..."
+# Obtener la URL del activo (asset) de la última release usando la API de GitHub
+BLAZEPILOT_URL=$(curl -sL https://api.github.com/repos/Jhanfer/blazepilot/releases/latest \
+    | jq -r '.assets[] | select(.name | contains("x86_64-unknown-linux-gnu")) | .browser_download_url')
+
+if [[ -z "$BLAZEPILOT_URL" || "$BLAZEPILOT_URL" == "null" ]]; then
+    log_err "No se pudo encontrar el binario de BlazePilot para Linux x86_64 en la última release."
+else
+    log_info "Descargando BlazePilot desde: $BLAZEPILOT_URL"
+    curl -sL "$BLAZEPILOT_URL" -o "$DOWNLOAD_DIR/blazepilot"
+    chmod +x "$DOWNLOAD_DIR/blazepilot"
+    log_ok "BlazePilot descargado y listo para ejecutar en: $DOWNLOAD_DIR/blazepilot"
+fi
+
+# 11. Despliegue de dotfiles mediante GNU Stow con Respaldo Preventivo
+log_info "Preparando despliegue de dotfiles con GNU Stow..."
+if [[ -d "$BLAZEDE_DIR/stow" ]]; then
+    # Backup preventivo de las carpetas que coincidan con los módulos a desplegar
+    BACKUP_DATE="$(date +%Y%m%d_%H%M%S)"
+    BACKUP_DIR="$HOME/.config/blazede_backup_$BACKUP_DATE"
+    
+    mkdir -p "$HOME/.config" "$HOME/.local/bin" "$HOME/.local/state/zsh" "$HOME/.cache/zsh"
+    
+    STOW_MODULES=(
+        shell
+        blazede
+        fastfetch
+        waybar
+        hypr
+        environment
+        uwsm
+        wallbash
+    )
+    
+    # Lista de posibles carpetas en ~/.config con las que podría haber colisión previa
+    COLLISION_TARGETS=("hypr" "waybar" "fastfetch" "wallbash" "blazede" "zsh")
+    HAS_COLLISIONS=0
+    for target in "${COLLISION_TARGETS[@]}"; do
+        if [[ -d "$HOME/.config/$target" && ! -L "$HOME/.config/$target" ]]; then
+            HAS_COLLISIONS=1
+            break
+        fi
+    done
+    
+    if [[ $HAS_COLLISIONS -eq 1 ]]; then
+        log_info "Se detectaron configuraciones previas no-simbólicas. Creando backup en: $BACKUP_DIR"
+        mkdir -p "$BACKUP_DIR"
+        for target in "${COLLISION_TARGETS[@]}"; do
+            if [[ -d "$HOME/.config/$target" && ! -L "$HOME/.config/$target" ]]; then
+                cp -ra "$HOME/.config/$target" "$BACKUP_DIR/"
+            fi
+        done
+        log_ok "Backup preventivo completado."
+    fi
+
+    (
+        cd "$BLAZEDE_DIR/stow"
+        for mod in "${STOW_MODULES[@]}"; do
+            if [[ -d "$mod" ]]; then
+                log_info "Enlazando módulo Stow: $mod"
+                stow --adopt -t "$HOME" "$mod" 2>/dev/null || stow -t "$HOME" "$mod" 2>/dev/null || true
+            fi
+        done
+        # Restaurar el estado original del repositorio tras el adopt
+        git checkout -- . 2>/dev/null || true
+    )
+    log_ok "Dotfiles desplegados correctamente en $HOME."
+fi
+
+# 12. Compilación de módulos DKMS
+log_info "Verificando compilación de módulos NVIDIA DKMS..."
+if command -v dkms >/dev/null 2>&1; then
+    sudo dkms autoinstall || log_warn "DKMS autoinstall finalizó con advertencias (revisar si ya están precompilados)."
+fi
+
+# 13. Regeneración de initramfs y Actualización del Gestor de Arranque (Bootloader)
+log_info "Regenerando initramfs para todos los kernels instalados..."
+sudo mkinitcpio -P || log_warn "mkinitcpio devolvió advertencias."
+
+log_info "Actualizando gestor de arranque..."
+if command -v grub-mkconfig >/dev/null 2>&1 && [[ -d /boot/grub ]]; then
+    log_info "Detectado GRUB. Actualizando /boot/grub/grub.cfg..."
+    sudo grub-mkconfig -o /boot/grub/grub.cfg
+    log_ok "GRUB actualizado correctamente."
+elif command -v bootctl >/dev/null 2>&1 && [[ -d /boot/loader ]]; then
+    log_info "Detectado systemd-boot. Actualizando entradas..."
+    sudo bootctl update
+    log_ok "systemd-boot actualizado correctamente."
+else
+    log_warn "No se reconoció automáticamente el gestor de arranque (GRUB/systemd-boot). Por favor, actualícelo manualmente."
+fi
+
+# 14. Habilitación de Servicios esenciales
+log_info "Habilitando servicios de sistema y de usuario..."
+sudo systemctl enable sddm.service || true
+sudo systemctl enable bluetooth.service || true
+
+# Servicios de usuario
+systemctl --user enable pipewire.service || true
+systemctl --user enable pipewire-pulse.service || true
+systemctl --user enable wireplumber.service || true
+
+# Cambiar shell por defecto a zsh para el usuario si no lo es
+if [[ "$SHELL" != *"zsh"* ]]; then
+    log_info "Cambiando shell por defecto a zsh..."
+    chsh -s "$(which zsh)" "$USER" || log_warn "No se pudo cambiar automáticamente la shell con chsh."
+fi
+
+log_ok "========================================================"
+log_ok "¡Instalación de BlazeDE finalizada con éxito!"
+log_ok "Por favor, reinicie el equipo para iniciar con el Kernel CachyOS."
+log_ok "========================================================"

@@ -1,0 +1,78 @@
+# ==============================================================================
+# BlazeDE - Paquetes de Repositorios Oficiales (Pacman)
+# ==============================================================================
+
+# --- Entorno de Escritorio y Compositor ---
+hyprland
+hypridle
+hyprlock
+xdg-desktop-portal-hyprland
+hyprpolkitagent
+
+# --- Terminal y Shell ---
+kitty
+zsh
+zoxide
+
+# --- Interfaz, Barra y Notificaciones ---
+waybar
+swaync
+
+# --- Fondos de Pantalla y Portapapeles ---
+awww
+cliphist
+wl-clipboard
+
+# --- Herramientas de Captura y OCR ---
+grim
+slurp
+satty
+tesseract
+imagemagick
+
+# --- Audio y Servidor Multimedia ---
+pipewire
+pipewire-pulse
+pipewire-alsa
+pipewire-jack
+wireplumber
+pavucontrol
+easyeffects
+playerctl
+
+# --- Sistema, Brillo y Utilidades Base ---
+base-devel
+git
+stow
+brightnessctl
+jq
+dbus-broker
+polkit-gnome
+blueman
+pasystray
+eog
+
+# --- Fuentes y Apariencia ---
+ttf-jetbrains-mono-nerd
+papirus-icon-theme
+breeze-gtk
+
+# --- Gestor de Sesión (Display Manager) ---
+sddm
+
+# --- Kernel Headers para DKMS ---
+linux-headers
+
+# --- Desarrollo y Virtualización ---
+rust
+python
+flatpak
+libreoffice
+qemu
+
+# --- Controladores Gráficos NVIDIA ---
+nvidia-dkms
+nvidia-utils
+lib32-nvidia-utils
+libva-nvidia-driver
+egl-wayland

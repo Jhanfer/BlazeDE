@@ -1,0 +1,15 @@
+# ==============================================================================
+# BlazeDE - Paquetes de Flatpak (Flathub)
+# Formato: ID de aplicación de Flathub
+# ==============================================================================
+
+# --- Herramientas de Gestión de Flatpak ---
+com.github.tchx84.Flatseal
+io.github.flattool.Warehouse
+
+# --- Monitoreo y Productividad ---
+io.missioncenter.MissionCenter
+com.super_productivity.SuperProductivity
+
+# --- Multimedia y Grabación (Opcionales) ---
+com.obsproject.Studio

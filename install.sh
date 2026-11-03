@@ -237,10 +237,37 @@ systemctl --user enable pipewire.service || true
 systemctl --user enable pipewire-pulse.service || true
 systemctl --user enable wireplumber.service || true
 
+
+# 15. Configuración de SDDM (Tema y Wayland)
+log_info "Configurando SDDM para Hyprland..."
+sudo mkdir -p /etc/sddm.conf.d
+
+# Crear configuración para forzar el inicio en Wayland y usar el tema
+sudo tee /etc/sddm.conf.d/10-wayland.conf > /dev/null << 'EOF'
+[General]
+DisplayServer=wayland
+GreeterEnvironment=QML2_IMPORT_PATH=/usr/share/sddm/themes/sddm-astronaut-theme,QT_WAYLAND_SHELL_INTEGRATION=layer-shell
+
+[Theme]
+Current=sddm-astronaut-theme
+EOF
+
+# Si el tema astronaut requiere ajustes extra (como el archivo de configuración del tema)
+if [[ -d "/usr/share/sddm/themes/sddm-astronaut-theme" ]]; then
+    log_info "Aplicando configuración base al tema Astronaut..."
+    # Copiar el archivo de configuración por defecto para que el usuario pueda editarlo luego
+    sudo cp /usr/share/sddm/themes/sddm-astronaut-theme/theme.conf /usr/share/sddm/themes/sddm-astronaut-theme/theme.conf.bak 2>/dev/null || true
+    # Aquí podrías usar 'sed' para cambiar el fondo por defecto si quisieras
+fi
+
+# Habilitar SDDM
+sudo systemctl enable sddm.service || true
+log_ok "SDDM configurado y habilitado."
+
 # Cambiar shell por defecto a zsh para el usuario si no lo es
 if [[ "$SHELL" != *"zsh"* ]]; then
     log_info "Cambiando shell por defecto a zsh..."
-    chsh -s "$(which zsh)" "$USER" || log_warn "No se pudo cambiar automáticamente la shell con chsh."
+    sudo usermod -s "$(which zsh)" "$USER" || log_warn "No se pudo cambiar automáticamente la shell con chsh."
 fi
 
 log_ok "========================================================"

@@ -17,3 +17,6 @@ grimblast-git
 zen-browser-bin
 visual-studio-code-insiders-bin
 spotify
+
+# --- Tema sddm ---
+sddm-astronaut-theme

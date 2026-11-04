@@ -1,6 +1,5 @@
 # ==============================================================================
 # BlazeDE - Paquetes de Flatpak (Flathub)
-# Formato: ID de aplicación de Flathub
 # ==============================================================================
 
 # --- Herramientas de Gestión de Flatpak ---
@@ -11,5 +10,9 @@ io.github.flattool.Warehouse
 io.missioncenter.MissionCenter
 com.super_productivity.SuperProductivity
 
-# --- Multimedia y Grabación (Opcionales) ---
+# --- Multimedia y Grabación ---
 com.obsproject.Studio
+
+# --- Códecs y Extensiones Críticas (Para que OBS y otras apps funcionen) ---
+org.freedesktop.Platform.codecs-extra
+org.freedesktop.Platform.ffmpeg-full

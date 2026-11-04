@@ -2,7 +2,7 @@
 # ==============================================================================
 # BlazeDE Installer Script
 # Automatización de instalación, paquetes, AUR, Flatpak, CachyOS Kernel, 
-# BlazePilot, dotfiles (Stow con backup automático), bootloader y servicios.
+# BlazePilot, dotfiles, bootloader y servicios.
 # ==============================================================================
 
 set -eo pipefail
@@ -19,9 +19,9 @@ CLR_WARN="\033[1;33m"
 CLR_ERR="\033[1;31m"
 
 log_info() { printf "${CLR_INFO}[INFO] %s${CLR_RESET}\n" "$*"; }
-log_ok()   { printf "${CLR_SUCCESS}[OK] %s${CLR_RESET}\n" "$*"; }
+log_ok() { printf "${CLR_SUCCESS}[OK] %s${CLR_RESET}\n" "$*"; }
 log_warn() { printf "${CLR_WARN}[WARN] %s${CLR_RESET}\n" "$*"; }
-log_err()  { printf "${CLR_ERR}[ERROR] %s${CLR_RESET}\n" "$*" >&2; }
+log_err() { printf "${CLR_ERR}[ERROR] %s${CLR_RESET}\n" "$*" >&2; }
 
 # Función para leer paquetes de un archivo ignorando comentarios (#) y líneas vacías
 read_packages() {
@@ -86,7 +86,7 @@ fi
 log_info "Instalando último Kernel CachyOS optimizado y sus headers..."
 sudo pacman -S --needed --noconfirm linux-cachyos linux-cachyos-headers || log_warn "No se pudo instalar linux-cachyos vía repositorio."
 
-# 7. Paquetes de Repositorios Oficiales (Pacman) desde packages/pacman.txt
+# 7. Paquetes de Repositorios Oficiales desde packages/pacman.txt
 PACMAN_FILE="$PACKAGES_DIR/pacman.txt"
 if [[ -f "$PACMAN_FILE" ]]; then
     # shellcheck disable=SC2207
@@ -97,7 +97,7 @@ else
     log_warn "No se encontró el archivo $PACMAN_FILE."
 fi
 
-# 8. Paquetes desde AUR (Yay) desde packages/yay.txt
+# 8. Paquetes desde AUR desde packages/yay.txt
 YAY_FILE="$PACKAGES_DIR/yay.txt"
 if [[ -f "$YAY_FILE" ]]; then
     # shellcheck disable=SC2207
@@ -138,7 +138,7 @@ mkdir -p "$DOWNLOAD_DIR"
 log_info "Obteniendo la última versión precompilada de BlazePilot desde GitHub..."
 # Obtener la URL del activo (asset) de la última release usando la API de GitHub
 BLAZEPILOT_URL=$(curl -sL https://api.github.com/repos/Jhanfer/blazepilot/releases/latest \
-    | jq -r '.assets[] | select(.name | contains("x86_64-unknown-linux-gnu")) | .browser_download_url')
+    | jq -r '.assets[] | select(.name | contains("x86_64-unknown-linux-gnu") and (endswith(".sha256") | not)) | .browser_download_url')
 
 if [[ -z "$BLAZEPILOT_URL" || "$BLAZEPILOT_URL" == "null" ]]; then
     log_err "No se pudo encontrar el binario de BlazePilot para Linux x86_64 en la última release."
@@ -167,6 +167,7 @@ if [[ -d "$BLAZEDE_DIR/stow" ]]; then
         environment
         uwsm
         wallbash
+        kitty
     )
     
     # Lista de posibles carpetas en ~/.config con las que podría haber colisión previa
@@ -210,10 +211,69 @@ if command -v dkms >/dev/null 2>&1; then
     sudo dkms autoinstall || log_warn "DKMS autoinstall finalizó con advertencias (revisar si ya están precompilados)."
 fi
 
-# 13. Regeneración de initramfs y Actualización del Gestor de Arranque (Bootloader)
+# 13. Configuración de Plymouth, Tema del GRUB y Regeneración del Bootloader
+# Configuración de Plymouth
+if command -v plymouth-set-default-theme >/dev/null 2>&1; then
+    log_info "Configurando Plymouth..."
+    # Configurar hook de plymouth en /etc/mkinitcpio.conf si no está presente
+    if [[ -f /etc/mkinitcpio.conf ]] && ! grep -q "plymouth" /etc/mkinitcpio.conf; then
+        log_info "Añadiendo hook 'plymouth' a /etc/mkinitcpio.conf..."
+        if grep -q "sd-encrypt" /etc/mkinitcpio.conf; then
+            # Basado en systemd con cifrado: justo antes de sd-encrypt
+            sudo sed -i 's/\bsd-encrypt\b/plymouth sd-encrypt/' /etc/mkinitcpio.conf
+        elif grep -q "encrypt" /etc/mkinitcpio.conf; then
+            # Basado en udev con cifrado: justo antes de encrypt
+            sudo sed -i 's/\bencrypt\b/plymouth encrypt/' /etc/mkinitcpio.conf
+        elif grep -q "systemd" /etc/mkinitcpio.conf; then
+            # systemd sin cifrado: justo después de systemd
+            sudo sed -i 's/\bsystemd\b/systemd plymouth/' /etc/mkinitcpio.conf
+        elif grep -q "udev" /etc/mkinitcpio.conf; then
+            # udev sin cifrado: justo después de udev o base udev
+            sudo sed -i 's/\budev\b/udev plymouth/' /etc/mkinitcpio.conf
+        fi
+    fi
+
+    # Seleccionar tema disponible
+    PLYMOUTH_THEME="bgrt"
+    if ! plymouth-set-default-theme -l | grep -qx "$PLYMOUTH_THEME"; then
+        PLYMOUTH_THEME="$(plymouth-set-default-theme -l | head -n 1)"
+    fi
+
+    if [[ -n "$PLYMOUTH_THEME" ]]; then
+        log_info "Estableciendo tema de Plymouth a: $PLYMOUTH_THEME"
+        sudo plymouth-set-default-theme -R "$PLYMOUTH_THEME" || sudo plymouth-set-default-theme "$PLYMOUTH_THEME" || true
+    fi
+fi
+
+# Regeneración de initramfs
 log_info "Regenerando initramfs para todos los kernels instalados..."
 sudo mkinitcpio -P || log_warn "mkinitcpio devolvió advertencias."
 
+# Configuración de Vimix para GRUB
+# Localización dinámica por si el paquete varía el prefijo del directorio
+VIMIX_DIR="$(find /usr/share/grub/themes/ -maxdepth 1 -name "*vimix*very-dark-blue*" 2>/dev/null | head -n 1)"
+if [[ -z "$VIMIX_DIR" ]]; then
+    VIMIX_DIR="$(find /usr/share/grub/themes/ -maxdepth 1 -name "*vimix*" 2>/dev/null | head -n 1)"
+fi
+
+if [[ -n "$VIMIX_DIR" && -d "$VIMIX_DIR" ]]; then
+    log_info "Configurando el tema Vimix ($VIMIX_DIR) para GRUB..."
+    VIMIX_NAME="$(basename "$VIMIX_DIR")"
+    # Copia a /boot/grub/themes para compatibilidad y acceso directo en boot/EFI
+    sudo mkdir -p /boot/grub/themes
+    sudo cp -r "$VIMIX_DIR" /boot/grub/themes/
+    GRUB_THEME_FILE="/boot/grub/themes/$VIMIX_NAME/theme.txt"
+
+    if [[ -f "$GRUB_THEME_FILE" && -f /etc/default/grub ]]; then
+        sudo sed -i '/^GRUB_THEME=/d' /etc/default/grub
+        echo "GRUB_THEME=\"$GRUB_THEME_FILE\"" | sudo tee -a /etc/default/grub >/dev/null
+        log_ok "Tema Vimix configurado en /etc/default/grub ($GRUB_THEME_FILE)."
+    fi
+else
+    log_warn "No se encontró el directorio del tema Vimix en /usr/share/grub/themes/."
+fi
+
+# Actualización bootloader
 log_info "Actualizando gestor de arranque..."
 if command -v grub-mkconfig >/dev/null 2>&1 && [[ -d /boot/grub ]]; then
     log_info "Detectado GRUB. Actualizando /boot/grub/grub.cfg..."
@@ -229,7 +289,6 @@ fi
 
 # 14. Habilitación de Servicios esenciales
 log_info "Habilitando servicios de sistema y de usuario..."
-sudo systemctl enable sddm.service || true
 sudo systemctl enable bluetooth.service || true
 
 # Servicios de usuario
@@ -264,6 +323,13 @@ fi
 sudo systemctl enable sddm.service || true
 log_ok "SDDM configurado y habilitado."
 
+# Generar las carpetas de usuario (desktop, music, images, etc)
+log_info "Generar carpetas de usuario..."
+if command -v xdg-user-dirs-update >/dev/null 2>&1; then
+    xdg-user-dirs-update
+    log_ok "Carpetas de usuario creadas correctamente."
+fi
+
 # Cambiar shell por defecto a zsh para el usuario si no lo es
 if [[ "$SHELL" != *"zsh"* ]]; then
     log_info "Cambiando shell por defecto a zsh..."
@@ -271,6 +337,20 @@ if [[ "$SHELL" != *"zsh"* ]]; then
 fi
 
 log_ok "========================================================"
-log_ok "¡Instalación de BlazeDE finalizada con éxito!"
-log_ok "Por favor, reinicie el equipo para iniciar con el Kernel CachyOS."
+log_ok "¡Instalación finalizada con éxito!"
+log_ok "========================================================"
+
+log_ok " ▄▄▄▄    ██▓    ▄▄▄      ▒███████▒▓█████ ▓█████▄ ▓█████"
+log_ok "▓█████▄ ▓██▒   ▒████▄    ▒ ▒ ▒ ▄▀░▓█   ▀ ▒██▀ ██▌▓█   ▀"
+log_ok "▒██▒ ▄██▒██░   ▒██  ▀█▄  ░ ▒ ▄▀▒░ ▒███   ░██   █▌▒███"
+log_ok "▒██░█▀  ▒██░   ░██▄▄▄▄██   ▄▀▒   ░▒▓█  ▄ ░▓█▄   ▌▒▓█  ▄"
+log_ok "░▓█  ▀█▓░██████▒▓█   ▓██▒▒███████▒░▒████▒░▒████▓ ░▒████▒"
+log_ok "░▒▓███▀▒░ ▒░▓  ░▒▒   ▓▒█░░▒▒ ▓░▒░▒░░ ▒░ ░ ▒▒▓  ▒ ░░ ▒░ ░"
+log_ok "▒░▒   ░ ░ ░ ▒  ░ ▒   ▒▒ ░░░▒ ▒ ░ ▒ ░ ░  ░ ░ ▒  ▒  ░ ░  ░"
+log_ok  "░    ░   ░ ░    ░   ▒   ░ ░ ░ ░ ░   ░    ░ ░  ░    ░"
+log_ok  "░          ░  ░     ░  ░  ░ ░       ░  ░   ░       ░  ░"
+log_ok  "░                  ░                ░"
+
+log_ok "========================================================"
+log_ok "Ya puedes reiniciar el equipo"
 log_ok "========================================================"

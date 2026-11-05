@@ -125,6 +125,14 @@ if command -v flatpak >/dev/null 2>&1; then
     log_ok "Flatpak y Flathub configurados."
 fi
 
+# Instalación de herramientas Cargo (xdg-desktop-portal-zenzai)
+if command -v cargo >/dev/null 2>&1; then
+    if ! command -v xdg-desktop-portal-zenzai >/dev/null 2>&1; then
+        log_info "Instalando xdg-desktop-portal-zenzai mediante cargo..."
+        cargo install xdg-desktop-portal-zenzai || log_warn "No se pudo compilar xdg-desktop-portal-zenzai."
+    fi
+fi
+
 # 10. Descarga de BlazePilot en la carpeta de Descargas
 log_info "Preparando descarga de BlazePilot..."
 DOWNLOAD_DIR="$HOME/Descargas"
@@ -149,6 +157,14 @@ else
     log_ok "BlazePilot descargado y listo para ejecutar en: $DOWNLOAD_DIR/blazepilot"
 fi
 
+# Clonar Blazelestia si no existe
+if [[ ! -d "$HOME/.config/quickshell/caelestia" ]]; then
+    log_info "Clonando Blazelestia..."
+    # Aseguramos que la carpeta base exista antes de clonar
+    mkdir -p "$HOME/.config/quickshell"
+    git clone https://github.com/Jhanfer/Blazelestia.git "$HOME/.config/quickshell/caelestia"
+fi
+
 # 11. Despliegue de dotfiles mediante GNU Stow con Respaldo Preventivo
 log_info "Preparando despliegue de dotfiles con GNU Stow..."
 if [[ -d "$BLAZEDE_DIR/stow" ]]; then
@@ -162,16 +178,17 @@ if [[ -d "$BLAZEDE_DIR/stow" ]]; then
         shell
         blazede
         fastfetch
-        waybar
         hypr
         environment
         uwsm
         wallbash
         kitty
+        xdg-desktop-portal-zenzai
+        caelestia
     )
     
     # Lista de posibles carpetas en ~/.config con las que podría haber colisión previa
-    COLLISION_TARGETS=("hypr" "waybar" "fastfetch" "wallbash" "blazede" "zsh")
+    COLLISION_TARGETS=("hypr" "fastfetch" "wallbash" "blazede" "zsh" "kitty" "caelestia" "environment" "uwsm")
     HAS_COLLISIONS=0
     for target in "${COLLISION_TARGETS[@]}"; do
         if [[ -d "$HOME/.config/$target" && ! -L "$HOME/.config/$target" ]]; then
@@ -329,6 +346,19 @@ if command -v xdg-user-dirs-update >/dev/null 2>&1; then
     xdg-user-dirs-update
     log_ok "Carpetas de usuario creadas correctamente."
 fi
+
+# Configurar PAM para GNOME Keyring y Hyprlock
+log_info "Configurando archivos PAM..."
+
+# Configuración limpia de /etc/pam.d/hyprlock
+sudo tee /etc/pam.d/hyprlock > /dev/null << 'EOF'
+#%PAM-1.0
+auth       include      system-login
+account    include      system-login
+session    optional     pam_keyinit.so force revoke
+session    include      system-login
+EOF
+log_ok "Archivo /etc/pam.d/hyprlock configurado."
 
 # Cambiar shell por defecto a zsh para el usuario si no lo es
 if [[ "$SHELL" != *"zsh"* ]]; then

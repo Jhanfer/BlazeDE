@@ -1,0 +1,3 @@
+[D-BUS Service]
+Name=org.freedesktop.impl.portal.desktop.zenzai
+Exec=/home/jhan/.cargo/bin/xdg-desktop-portal-zenzai

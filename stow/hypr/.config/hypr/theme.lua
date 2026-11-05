@@ -8,8 +8,12 @@
 -- Variables de entorno
 hl.env("GTK_THEME", "Gruvbox-Retro")
 hl.env("ICON_THEME", "Gruvbox-Plus-Dark")
-hl.env("CURSOR_THEME", "Gruvbox-Retro")
-hl.env("CURSOR_SIZE", "15")
+hl.env("CURSOR_THEME", "Bibata-Modern-Classic")
+hl.env("CURSOR_SIZE", "24")
+hl.env("XCURSOR_THEME", "Bibata-Modern-Classic")
+hl.env("XCURSOR_SIZE", "24")
+hl.env("HYPRCURSOR_THEME", "Bibata-Modern-Classic")
+hl.env("HYPRCURSOR_SIZE", "24")
 hl.env("COLOR_SCHEME", "prefer-dark")
 
 
@@ -83,9 +87,10 @@ hl.config({
 
 -- Reglas de capas
 hl.layer_rule({
-    name = "waybar-blur",
-    match = { namespace = "waybar" },
-    blur = true
+    name = "caelestia-blur",
+    match = { namespace = "^(caelestia.*|quickshell.*)$" },
+    blur = true,
+    ignore_alpha = 0.2
 })
 
 
@@ -96,8 +101,8 @@ hl.env("COLOR_SCHEME", "prefer-dark")
 hl.env("ICON_THEME", "Gruvbox-Plus-Dark")
 
 -- Cursor (si ya definiste XCURSOR_SIZE antes, usa el valor numérico directamente)
-hl.env("CURSOR_THEME", "Gruvbox-Retro")
-hl.env("CURSOR_SIZE", "20") -- Reemplaza 20 por el valor que necesites
+hl.env("CURSOR_THEME", "Bibata-Modern-Classic")
+hl.env("CURSOR_SIZE", "24")
 
 -- Fuentes (asigna los valores reales en lugar de referenciar variables)
 hl.env("FONT", "NombreDeTuFuente")

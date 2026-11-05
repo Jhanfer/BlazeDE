@@ -1,6 +1,0 @@
-{    "custom/keybindhint": {
-        "format": " ",
-        "rotate": 0,
-        "on-click": "keybinds_hint.sh"
-    }}
-

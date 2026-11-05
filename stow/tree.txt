@@ -1,0 +1,202 @@
+.
+├── blazede
+│   └── .config
+│       └── blazede
+│           └── scripts
+│               ├── amdgpu.py
+│               ├── animations.sh
+│               ├── app2unit.sh
+│               ├── batterynotify.sh
+│               ├── battery.sh
+│               ├── bookmarks.py
+│               ├── calculator.sh
+│               ├── cava.py
+│               ├── cliphist.sh
+│               ├── color.set.sh
+│               ├── configuration.py
+│               ├── cpuinfo.sh
+│               ├── dconf.set.sh
+│               ├── dontkillsteam.sh
+│               ├── emoji-picker.sh
+│               ├── font.sh
+│               ├── fzf_preview.sh
+│               ├── fzf_wrapper.py
+│               ├── gamelauncher.sh
+│               ├── gamemode.sh
+│               ├── globalcontrol.sh
+│               ├── glyph-picker.sh
+│               ├── gpuinfo.sh
+│               ├── grimblast
+│               ├── hyde-config
+│               ├── hyde-launch.sh
+│               ├── hyprlock.sh
+│               ├── hyprsunset.sh
+│               ├── hypr.unbind.sh
+│               ├── hyq
+│               ├── idle-inhibitor.py
+│               ├── keybinds.hint.py
+│               ├── keybinds_hint.sh
+│               ├── keyboardswitch.sh
+│               ├── lockscreen.sh
+│               ├── logoutlaunch.sh
+│               ├── mediaplayer.py
+│               ├── notifications.py
+│               ├── parse.config.py
+│               ├── parse.json.py
+│               ├── pm.sh
+│               ├── polkitkdeauth.sh
+│               ├── pygui
+│               │   └── color.shuffle.py
+│               ├── pyutils
+│               │   ├── compositor.py
+│               │   ├── configuration.py
+│               │   ├── logger.py
+│               │   ├── pip_env.py
+│               │   ├── __pycache__
+│               │   │   ├── compositor.cpython-313.pyc
+│               │   │   ├── compositor.cpython-314.pyc
+│               │   │   ├── logger.cpython-313.pyc
+│               │   │   ├── logger.cpython-314.pyc
+│               │   │   ├── pip_env.cpython-313.pyc
+│               │   │   ├── pip_env.cpython-314.pyc
+│               │   │   ├── xdg_base_dirs.cpython-313.pyc
+│               │   │   └── xdg_base_dirs.cpython-314.pyc
+│               │   ├── requirements.txt
+│               │   ├── wrapper
+│               │   │   ├── fzf.py
+│               │   │   ├── libnotify.py
+│               │   │   ├── __pycache__
+│               │   │   │   ├── libnotify.cpython-313.pyc
+│               │   │   │   ├── libnotify.cpython-314.pyc
+│               │   │   │   ├── rofi.cpython-313.pyc
+│               │   │   │   └── rofi.cpython-314.pyc
+│               │   │   └── rofi.py
+│               │   └── xdg_base_dirs.py
+│               ├── quickapps.sh
+│               ├── resetxdgportal.sh
+│               ├── restore.config.sh
+│               ├── rofi.bookmarks.sh
+│               ├── rofilaunch.sh
+│               ├── rofiselect.sh
+│               ├── rofi.websearch.sh
+│               ├── screenrecord.sh
+│               ├── screenshot.sh
+│               ├── sensorsinfo.py
+│               ├── shaders.sh
+│               ├── swwwallbash.sh
+│               ├── swwwallcache.sh
+│               ├── swwwallkon.sh
+│               ├── swwwallpaper.sh
+│               ├── swwwallselect.sh
+│               ├── sysmonlaunch.sh
+│               ├── systemupdate.sh
+│               ├── testrunner.sh
+│               ├── theme.import.py
+│               ├── theme.patch.sh
+│               ├── theme.select.sh
+│               ├── themeselect.sh
+│               ├── theme.switch.sh
+│               ├── themeswitch.sh
+│               ├── volumecontrol.sh
+│               ├── wallbash.hypr.sh
+│               ├── wallbash.print.colors.sh
+│               ├── wallbash.qt.sh
+│               ├── wallbash.sh
+│               ├── wallbashtoggle.sh
+│               ├── wallpaper.hyprpaper.sh
+│               ├── wallpaper.mpvpaper.sh
+│               ├── wallpaper.sh
+│               ├── wallpaper.swww.sh
+│               ├── waybar.py
+│               ├── wbarconfgen.sh
+│               ├── wbarstylegen.sh
+│               ├── weather.py
+│               ├── windowpin.sh
+│               ├── workflows.sh
+│               └── xdg-terminal-exec
+├── caelestia
+│   └── .config
+│       └── caelestia
+│           └── shell.json
+├── environment
+│   └── .config
+│       └── environment.d
+│           └── 10-blazede-path.conf
+├── fastfetch
+│   └── .config
+│       └── fastfetch
+│           ├── config.jsonc
+│           ├── fastfetch.sh
+│           └── logo
+│               ├── From KlickPin CF 7 Minimal simple dessert ideas that are worth saving if you love elegant details and creative inspiration for people who want stylish ideas on a - Pin-994521530228133674.jpg
+│               ├── From KlickPin CF Amazing Summer Salad Recipes on a Budget 89846 - Pin-553661347961282906.jpg
+│               ├── From KlickPin CF Calm strong woman quotes with simple charm and useful ideas on a budget that feel simple and true 🌿 - Pin-394416879889007508.jpg
+│               ├── From KlickPin CF Effortless Email Marketing Ideas You Need Right Now - Pin-976225656741523524.jpg
+│               ├── From KlickPin CF Love these viral creator workflow tips that turn ordinary ideas into scroll-stopping inspiration for a polished look that still feels personal and - Pin-992551205383007100.jpg
+│               ├── From KlickPin CF Minimal garden wedding decor ideas that are perfect when you want something stylish modern and easy to copy for creators who love polished and - Pin-868068896928118645.jpg
+│               ├── From KlickPin CF Must-save holiday tablescape ideas that feel fresh practical and surprisingly easy to try for ideas worth saving right now - Pin-1135610862299837839.jpg
+│               ├── From KlickPin CF Need fresh inspiration_ Copy these beautiful capsule wardrobe ideas that turn ordinary ideas into scroll-stopping inspiration with beginner-friendly - Pin-393290979981776896.jpg
+│               ├── From KlickPin CF Quiet sunrise moments for people who love practical beauty today for natural everyday beauty 🍂 - Pin-944137509374105187.jpg
+│               ├── From KlickPin CF Road Trip Essentials That Will Inspire You - Pin-806425877052334241.jpg
+│               ├── From KlickPin CF Soft daily words and clever inspiration with soft aesthetic charm for your next post 💬 - Pin-875598352554203503.jpg
+│               ├── From KlickPin CF Steal these budget-friendly small business ideas that help you get the look without the stress designed to feel inspiring useful and easy to save - Pin-842032461609345570.jpg
+│               ├── From KlickPin CF Steal these clever ways to style your reception ideas to make your next project easier and prettier designed to feel inspiring useful and easy to - Pin-694187730103808869.jpg
+│               ├── From KlickPin CF Try Beautiful boho home decor for your next Pinterest save built around ideas that are easy to save and revisit later - Pin-555842779017010485.jpg
+│               └── Gemini_Generated_Image_guweumguweumguwe.png
+├── hypr
+│   └── .config
+│       └── hypr
+│           ├── animations.lua
+│           ├── autostart.lua
+│           ├── hypridle.conf
+│           ├── hyprland.lua
+│           ├── input.lua
+│           ├── keybindings.lua
+│           ├── monitor.lua
+│           ├── scheme
+│           │   └── current.lua
+│           ├── theme.lua
+│           └── windowrule.lua
+├── kitty
+│   └── .config
+│       └── kitty
+│           ├── kitty.conf
+│           ├── scroll_mark.py
+│           └── search.py
+├── shell
+│   ├── .config
+│   │   └── zsh
+│   │       ├── functions
+│   │       │   ├── bat.zsh
+│   │       │   ├── duf.zsh
+│   │       │   ├── error-handlers.zsh
+│   │       │   ├── eza.zsh
+│   │       │   └── fzf.zsh
+│   │       ├── prompt.zsh
+│   │       ├── .zshenv
+│   │       └── .zshrc
+│   └── .zshenv
+├── tree.txt
+├── uwsm
+│   └── .config
+│       └── uwsm
+│           └── env.d
+│               └── 10-blazede-path.sh
+├── wallbash
+│   └── .config
+│       └── wallbash
+│           └── wallpaper.png
+└── xdg-desktop-portal-zenzai
+    ├── .config
+    │   └── xdg-desktop-portal-zenzai
+    │       └── config.toml
+    └── .local
+        └── share
+            ├── dbus-1
+            │   └── services
+            │       └── org.freedesktop.impl.portal.desktop.zenzai.service
+            └── xdg-desktop-portal
+                └── portals
+                    └── zenzai.portal
+
+47 directories, 153 files

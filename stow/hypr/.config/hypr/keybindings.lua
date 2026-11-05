@@ -15,7 +15,7 @@ local mainMod = "SUPER" -- super / meta / windows key
 local term = "kitty"
 local editor = "code"
 local file = "blazepilot"
-local browser = "flatpak run app.zen_browser.zen"
+local browser = "flatpak run app.zen_browser.zen &"
 local vscode = "code-insiders"
 local spot = "spotify"
 
@@ -39,7 +39,7 @@ hl.bind(mainMod .. " + Delete", hl.dsp.exit()) -- matar sesión de hyprland
 hl.bind(mainMod .. " + W", hl.dsp.window.float({ action = "toggle" })) -- alternar flotante
 hl.bind(mainMod .. " + G", hl.dsp.group.toggle()) -- alternar grupo
 hl.bind("Alt + Return", hl.dsp.window.fullscreen()) -- alternar pantalla completa
-hl.bind(mainMod .. " + L", hl.dsp.exec_cmd("swaylock")) -- bloquear pantalla
+hl.bind(mainMod .. " + L", hl.dsp.exec_cmd("caelestia shell lock")) -- bloquear pantalla
 
 
 hl.bind(mainMod .. " + SHIFT + F", hl.dsp.exec_cmd(scriptPath .. "/windowpin.sh")) -- fijar ventana
@@ -58,9 +58,10 @@ hl.bind(mainMod .. " + C", hl.dsp.exec_cmd(vscode))
 hl.bind("Ctrl+Shift + Escape", hl.dsp.exec_cmd(scriptPath .. "/sysmonlaunch.sh"))
 
 ------------------------------------------------
------------ Lanzadores con Walker --------------
+----------- Lanzadores (Caelestia / Walker) ----
 ------------------------------------------------
-hl.bind(mainMod .. " + A", hl.dsp.exec_cmd("walker"))
+hl.bind(mainMod .. " + A", hl.dsp.exec_cmd("caelestia shell drawers toggle launcher || walker"))
+hl.bind(mainMod .. " + D", hl.dsp.exec_cmd("caelestia shell drawers toggle launcher"))
 hl.bind(mainMod .. " + Tab", hl.dsp.exec_cmd("walker -m windows"))
 hl.bind(mainMod .. " + SHIFT + E", hl.dsp.exec_cmd("walker -m files"))
 hl.bind(mainMod .. " + V", hl.dsp.exec_cmd("walker -m clipboard"))

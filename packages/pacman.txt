@@ -5,7 +5,6 @@
 # --- Entorno de Escritorio y Compositor ---
 hyprland
 hypridle
-hyprlock
 xdg-desktop-portal-hyprland
 hyprpolkitagent
 
@@ -15,10 +14,7 @@ zsh
 zoxide
 zsh-autosuggestions
 zsh-syntax-highlighting
-
-# --- Interfaz, Barra y Notificaciones ---
-waybar
-swaync
+fastfetch
 
 # --- Fondos de Pantalla y Portapapeles ---
 awww
@@ -47,6 +43,8 @@ base-devel
 git
 stow
 brightnessctl
+pamixer
+matugen
 jq
 dbus-broker
 polkit-gnome
@@ -60,6 +58,7 @@ ttf-jetbrains-mono-nerd
 ttf-fira-code
 papirus-icon-theme
 breeze-gtk
+adw-gtk3
 
 # --- Gestor de Sesión (Display Manager) ---
 sddm
@@ -80,3 +79,15 @@ nvidia-utils
 lib32-nvidia-utils
 libva-nvidia-driver
 egl-wayland
+
+# --- Llaves y seguridad ---
+gnome-keyring
+libsecret
+bibata-cursor-theme
+
+xorg-xwayland
+qt5-wayland
+qt6-wayland
+cava
+network-manager-applet
+xdg-desktop-portal-gtk

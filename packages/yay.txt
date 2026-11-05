@@ -23,3 +23,8 @@ sddm-astronaut-theme
 
 # --- Temas de Boot (GRUB / Plymouth / Cursores) ---
 grub-theme-vimix-very-dark-blue
+
+# --- Quickshell / Caelestia Shell ---
+quickshell
+caelestia-cli
+caelestia-shell

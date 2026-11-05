@@ -149,3 +149,5 @@ export FLYCTL_INSTALL="$HOME/.fly"
 if [[ -d "$FLYCTL_INSTALL/bin" ]]; then
     export PATH="$FLYCTL_INSTALL/bin:$PATH"
 fi
+# opencode
+export PATH=/home/jhan/.opencode/bin:$PATH

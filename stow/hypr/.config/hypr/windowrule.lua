@@ -131,8 +131,8 @@ hl.window_rule({
 local layer_namespaces = {
     "rofi",
     "notifications",
-    "swaync-notification-window",
-    "swaync-control-center",
+    "^(caelestia.*)$",
+    "^(quickshell.*)$",
     "logout_dialog"
 }
 

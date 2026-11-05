@@ -1,0 +1,11 @@
+{
+  "paths": {
+    "wallpaperDir": "~/.config/wallbash"
+  },
+  "background": {
+    "wallpaperEnabled": true
+  },
+  "lock": {
+    "useWallpaper": true
+  }
+}
